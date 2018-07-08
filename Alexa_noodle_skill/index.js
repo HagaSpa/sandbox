@@ -31,9 +31,11 @@ exports.handler = async function (event, context) {
       skill = Alexa.SkillBuilders.custom()
         .addRequestHandlers(
             LaunchRequestHandler,
-            OrderIntentHandler,
+            OrderIntentCompletedHandler,
+            OrderIntentNoMatchKindOfNoodleHandler,
+            OrderIntentNoMatchCountHandler,
+            OrderIntentProgressHandler,
             MenuIntentHandler,
-            OrderIntentNoMatchSlotsHandler,
             NoIntentHandler)
         .create();
     }
@@ -60,11 +62,12 @@ const LaunchRequestHandler = {
  * OrderIntent用ハンドラ
  * kindOfNoodleが合致した場合、かつcountも合致した場合
  */
-const OrderIntentHandler = {
+const OrderIntentCompletedHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
         return request.type === 'IntentRequest'
             && request.intent.name === 'OrderIntent'
+            && request.dialogState === 'COMPLETED'
             && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsMatch
             && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsMatch;
     },
@@ -91,19 +94,59 @@ const OrderIntentHandler = {
 };
 
 /**
- * OrderIntent用ハンドラ。
- * slotsが合致しなかった場合実行される。具体的には3種類のラーメン以外が、注文された場合。
+ * OrderIntent用ハンドラ
+ * 必須にしているslotが、入力されていない場合に実行される。alexaで設定した音声プロンプトを実行するように、処理を委譲する。
  */
-const OrderIntentNoMatchSlotsHandler = {
+const OrderIntentProgressHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'OrderIntent'
-            && handlerInput.requestEnvelope.request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsNoMatch;
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'OrderIntent'
+            && (request.dialogState === 'STARTED' || request.dialogState === 'IN_PROGRESS')
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .addDelegateDirective()
+            .getResponse();
+    }
+};
+
+/**
+ * OrderIntent用ハンドラ。
+ * kindOfNoodleが合致しなかった場合実行される。具体的には3種類のラーメン以外が、注文された場合。
+ */
+const OrderIntentNoMatchKindOfNoodleHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'OrderIntent'
+            && request.dialogState === 'COMPLETED'
+            && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsNoMatch;
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
             .speak('その品物はございません。しょうゆラーメン、みそらーめん、とんこつラーメンからお選びください。何になさいますか？')
             .reprompt('ご注文をお伺いします')
+            .getResponse();
+    }
+};
+
+/**
+ * OrderIntent用ハンドラ。
+ * countが合致しなかった場合実行される。具体的には五つより多い個数が、注文された場合。
+ */
+const OrderIntentNoMatchCountHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'OrderIntent'
+            && request.dialogState === 'COMPLETED'
+            && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsNoMatch;
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .speak('注文数は最大で五つまでとなっています。いくつ注文しますか？')
+            .reprompt('いくつ注文しますか？')
             .getResponse();
     }
 };
