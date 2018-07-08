@@ -154,7 +154,6 @@ const toAccount = (slots) => {
     const countValue = countIdMap.get(countId);
     // 金額を作成（値段 * 個数）
     const fee = kindOfNoodleValue * countValue;
-    // 合計金額へ加算
-    //totalFee += fee;
+    // 合計金額を返却
     return fee;
 }
