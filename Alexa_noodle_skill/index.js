@@ -36,7 +36,10 @@ exports.handler = async function (event, context) {
             OrderIntentNoMatchCountHandler,
             OrderIntentProgressHandler,
             MenuIntentHandler,
-            NoIntentHandler)
+            NoIntentHandler,
+            CancelIntentHandler,
+            HelpIntentHandler,
+            StopIntentHandler)
         .create();
     }
     return skill.invoke(event);
@@ -68,8 +71,8 @@ const OrderIntentCompletedHandler = {
         return request.type === 'IntentRequest'
             && request.intent.name === 'OrderIntent'
             && request.dialogState === 'COMPLETED'
-            && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsMatch
-            && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsMatch;
+            && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code === successSlotsMatch
+            && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code === successSlotsMatch;
     },
     handle(handlerInput) {
         const slots = handlerInput.requestEnvelope.request.intent.slots;
@@ -121,7 +124,7 @@ const OrderIntentNoMatchKindOfNoodleHandler = {
         return request.type === 'IntentRequest'
             && request.intent.name === 'OrderIntent'
             && request.dialogState === 'COMPLETED'
-            && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsNoMatch;
+            && request.intent.slots.kindOfNoodle.resolutions.resolutionsPerAuthority[0].status.code === successSlotsNoMatch;
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
@@ -141,7 +144,7 @@ const OrderIntentNoMatchCountHandler = {
         return request.type === 'IntentRequest'
             && request.intent.name === 'OrderIntent'
             && request.dialogState === 'COMPLETED'
-            && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code  === successSlotsNoMatch;
+            && request.intent.slots.count.resolutions.resolutionsPerAuthority[0].status.code === successSlotsNoMatch;
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
@@ -157,8 +160,9 @@ const OrderIntentNoMatchCountHandler = {
  */
 const MenuIntentHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && (handlerInput.requestEnvelope.request.intent.name === 'MenuIntent' || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent');
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && (request.intent.name === 'MenuIntent' || request.intent.name === 'AMAZON.YesIntent');
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
@@ -174,12 +178,61 @@ const MenuIntentHandler = {
  */
 const NoIntentHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.NoIntent';
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'AMAZON.NoIntent';
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak(`ご注文を承りました。`)
+            .speak('ご注文を承りました。')
+            .getResponse();
+    }
+};
+
+/**
+ * キャンセルの場合
+ */
+const CancelIntentHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'AMAZON.CancelIntent';
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .speak('スキルをキャンセルしました。')
+            .getResponse();
+    }
+};
+
+/**
+ * ヘルプの場合
+ */
+const HelpIntentHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'AMAZON.HelpIntent';
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .speak('このスキルでは、ラーメンを注文をすることができます。')
+            .getResponse();
+    }
+};
+
+/**
+ * ストップの場合
+ */
+const StopIntentHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'AMAZON.StopIntent';
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .speak('スキルを中断しました。')
             .getResponse();
     }
 };
