@@ -7,17 +7,19 @@ def maximum_number(li):
     # liの中から一番左の桁に対して、降順で並び替えて要素ごとに文字列化
     for i in range(len(li)):
         for j in range(i+1, len(li)):
-            # 隣の要素の方が一番左端の数字が大きければ、並び替える
-            if int(str(li[i])[0]) < int(str(li[j])[0]):
-                tmp = str(li[j])
-                li[j] = str(li[i])
+            # 隣の要素の方が一番左端の数字が大きければ並び替える or 一番左の桁が同じ数の場合intで比較して並び替える
+            if int(str(li[i])[0]) < int(str(li[j])[0]) or li[i] < li[j]:
+                tmp = li[j]
+                li[j] = li[i]
                 li[i] = tmp
     
-    r = "".join(li)
+    # str化
+    sli = map(lambda x: str(x), li)
+    r = "".join(sli)
     n = int(r)
     return n
 
 
-
-li = [50, 2, 1, 9]
-print(maximum_number(li)) # 95021
+print(maximum_number([50, 2, 1, 9]))  # 95021
+print(maximum_number([50, 52, 1, 9])) # 952501
+print(maximum_number([5, 50, 56]))    # 56550 じゃなきゃダメじゃね？
