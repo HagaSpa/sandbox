@@ -1,7 +1,9 @@
 
 def maximum_number(li):
     """
-    与えられた正の整数リストから、結合して作成可能な最大数を返す
+    与えられた正の整数リストから、結合して作成可能な最大数を返す.
+
+    各要素の中から最大桁数に合わせて、一番左の桁数を末尾にパッディングする。その後整数比較を行い降順に結合していけば求める値が算出できる。
     """
 
     # パディングする際の桁数把握のため、要素内の最大桁数を取得
@@ -13,26 +15,8 @@ def maximum_number(li):
     # 比較を行う。最大桁数を満たしていない要素は比較時にパディング処理を行う。
     for i in range(len(li)):
         for j in range(i+1, len(li)):
-            comp_i = 0 # 比較用整数
-            comp_j = 0
-            s_i = str(li[i])
-            s_j = str(li[j])
-
-            if len(s_i) < m_digit:
-                d = m_digit - len(s_i)
-                trans = s_i[0] * d  #一番左端の桁数を最大桁数分パディングする
-                comp_i = int(s_i+trans)
-            else:
-                comp_i = li[i]
-            if len(s_j) < m_digit:
-                d = m_digit - len(s_j)
-                trans = s_j[0] * d
-                comp_j = int(s_j+trans)
-            else:
-                comp_j = li[j]
-
-            # 比較してソート
-            if comp_i < comp_j:
+            # paddingして比較を行いソートする
+            if __padding(li[i], m_digit) < __padding(li[j], m_digit):
                 tmp = li[j]
                 li[j] = li[i]
                 li[i] = tmp
@@ -42,6 +26,19 @@ def maximum_number(li):
     r = "".join(sli)
     n = int(r)
     return n
+
+
+def __padding(n, d):
+    """
+    nの桁数がdの桁数になるまで、一番左端桁の数値をコピーして末尾に追加する、パディングを行う
+    （nの桁数がd以上なら、nをそのまま返却する）
+    """
+    sn = str(n)
+    if len(sn) < d:
+        tsn = sn[0] * (d-len(sn))
+        return int(sn + tsn)
+    else:
+        return n
 
 
 print(maximum_number([50, 2, 1, 9]))  # 95021
