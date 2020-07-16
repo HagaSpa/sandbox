@@ -18,7 +18,7 @@ def add(digit: int, sign: str, branches: list) -> list:
 
 
 def f(sum: int, number: int, index: int) -> list:
-    digit = abs(number % 10)
+    digit = abs(number % 10) if number > 0 else abs(-number % 10)
     if index >= len(values):
         if sum == number:
             result = []
