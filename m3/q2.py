@@ -10,11 +10,9 @@ a = input()
 li = a.split(",") 
 
 # 0番目は1つ前が存在しないから必ず消す
+del li[0]
 for i in range(len(li)):
-    if i==0:
-        li[i] = ""
-        continue
-    if (i+1) % 2 != 0 and li[i] != li[i-1]:
+    if (i+2) % 2 != 0 and li[i] != li[i-1]:
         li[i] = "" 
 
 r = ','.join(list(filter(lambda x: x != "", li)))
