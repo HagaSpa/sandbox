@@ -9,16 +9,13 @@ expected: 2,4,4,6
 a = input()
 li = a.split(",") 
 
-r = []
-s = set()
-
-for i in range(1, len(li)):
-    if li[i] == li[i-1]:
-        s.add(li[i])
-
+# 0番目は1つ前が存在しないから必ず消す
 for i in range(len(li)):
-    if (i+1) % 2 != 0 and li[i] not in s:
+    if i==0:
         li[i] = ""
+        continue
+    if (i+1) % 2 != 0 and li[i] != li[i-1]:
+        li[i] = "" 
 
 r = ','.join(list(filter(lambda x: x != "", li)))
 
