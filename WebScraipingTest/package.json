@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "cheerio-httpcli": "^0.7.2",
-    "puppeteer": "^1.2.0"
+    "puppeteer": "^1.13.0"
   }
 }
